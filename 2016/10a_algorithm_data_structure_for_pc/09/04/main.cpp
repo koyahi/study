@@ -93,6 +93,54 @@ Node* find( Node *p_x, int k ) {
     }
 }
 
+void delete_node( Node *p_x ) {
+    if ( p_x == NULL ) return;
+    
+    if ( (p_x->p_l == NULL) && (p_x->p_r == NULL) ) {
+	if ( p_x == p_x->p_p->p_l ) {
+	    p_x->p_p->p_l = NULL;
+	}
+	else {
+	    p_x->p_p->p_r = NULL;
+	}
+	free(p_x);    	
+    }
+    else if ( (p_x->p_r == NULL) ) { // Left child exists.
+	if ( p_x == p_x->p_p->p_l ) {
+	    p_x->p_p->p_l = p_x->p_l;
+	}
+       	else {
+	    p_x->p_p->p_r = p_x->p_l;
+	}
+
+	p_x->p_l->p_p = p_x->p_p;
+	free(p_x);    	
+    }
+    else if ( (p_x->p_l == NULL ) ) { // Right child exists.
+	if ( p_x == p_x->p_p->p_l ) {
+	    p_x->p_p->p_l = p_x->p_r;
+	}
+	else {
+	    p_x->p_p->p_r = p_x->p_r;
+	}
+
+	p_x->p_r->p_p = p_x->p_p;	
+	free(p_x);    		
+    }
+    else { 			// Both children exist.
+	// Find successor.
+	Node *p_s = p_x->p_r;
+	while ( p_s->p_l != NULL ) {
+	    p_s = p_s->p_l;
+	}
+
+	p_x->key = p_s->key;
+	delete_node(p_s);
+    }
+
+    return;
+}
+
 int main()
 {
     scanf("%d", &m);
@@ -110,6 +158,13 @@ int main()
 	    scanf("%d", &k);
 	    p_x = find(T, k);
 	    printf("%s\n", (p_x != NULL) ? "yes" : "no" );
+	}
+	else if ( str[0] == 'd' ) { // delete
+	    Node *p_x;
+	    int k;
+	    scanf("%d", &k);
+	    p_x = find(T, k);
+	    if ( p_x != NULL ) delete_node(p_x);
 	}
 	else {			// print
 	    vector<int> pre;
