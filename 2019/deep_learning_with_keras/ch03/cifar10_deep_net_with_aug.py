@@ -17,26 +17,26 @@ class CIFAR10Dataset():
         self.image_shape = (32, 32, 3)
         self.num_classes = 10
 
-        def get_batch(self):
-            (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    def get_batch(self):
+        (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
-            x_train, x_test = [self.preprocess(d) for d in [x_train, x_test]]]
-            y_train, y_test = [self.preprocess(d, label_data=True) for d in [y_train, y_test]]]
+        x_train, x_test = [self.preprocess(d) for d in [x_train, x_test]]
+        y_train, y_test = [self.preprocess(d, label_data=True) for d in [y_train, y_test]]
 
-            return x_train, y_train, x_test, y_test
+        return x_train, y_train, x_test, y_test
 
-        def preprocess(self, data, label_data=False):
-            if label_data:
-                # convert class vectors to binary class matrices
-                data = keras.utils.to_categorical(data, self.num_classes)
-            else:
-                data = data.astype("float32")
-                data /= 255
-                # add dataset length to top
-                shape = (data.shape[0], ) + self.image_shape
-                data = data.reshape(shape)
-
-            return data
+    def preprocess(self, data, label_data=False):
+        if label_data:
+            # convert class vectors to binary class matrices
+            data = keras.utils.to_categorical(data, self.num_classes)
+        else:
+            data = data.astype("float32")
+            data /= 255
+            # add dataset length to top
+            shape = (data.shape[0], ) + self.image_shape
+            data = data.reshape(shape)
+            
+        return data
 
 class Trainer():
 
@@ -75,8 +75,8 @@ class Trainer():
             samplewise_std_normalization=False,  # 4
             zca_whitening=False,                 # 5
             rotation_range=0,                    # 6
-            width_shift_range=0.1                # 7
-            height_shift_range=0.1               # 8
+            width_shift_range=0.1,               # 7
+            height_shift_range=0.1,              # 8
             horizontal_flip=True,                # 9
             vertical_flip=False)                 # 10
 
@@ -84,13 +84,11 @@ class Trainer():
         datagen.fit(x_train)
 
         # split for validation data
-        indices = np.arrange(x_train.shape[0])
+        indices = np.arange(x_train.shape[0])
         np.random.shuffle(indices)
         validation_size = int(x_train.shape[0] * validation_split)
-        x_train, x_valid = x_train[indices[:-validation_size], :],
-        x_train[indices[validation_size:], :]
-        y_train, y_valid = y_train[indices[:-validation_size], :],
-        y_train[indices[validation_size:], :]
+        x_train, x_valid = x_train[indices[:-validation_size], :], x_train[indices[validation_size:], :]
+        y_train, y_valid = y_train[indices[:-validation_size], :], y_train[indices[validation_size:], :]
 
         self._target.fit_generator(
             datagen.flow(x_train, y_train, batch_size=batch_size),
@@ -123,7 +121,7 @@ def network(input_shape, num_classes):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dense(512, activation="relu"))
-    model.add(Dropout(0.5)
+    model.add(Dropout(0.5))
     model.add(Dense(num_classes))
     model.add(Activation("softmax"))
     return model
@@ -138,7 +136,7 @@ if __name__ == '__main__':
     # train the model
     x_train, y_train, x_test, y_test = dataset.get_batch()
     trainer = Trainer(model, loss="categorical_crossentropy",
-                      optimizer=RMSProp())
+                      optimizer=RMSprop())
     trainer.train(x_train, y_train, batch_size=128, epochs=15,
                   validation_split=0.2)
 
